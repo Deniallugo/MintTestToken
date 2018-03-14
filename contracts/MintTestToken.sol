@@ -58,27 +58,28 @@ contract MintTestToken is Minter, TestToken {
         
         for (uint balanceIndex = 0; balanceIndex < userFreezeBalances.length; balanceIndex++) {
             var freezeBalance = userFreezeBalances[balanceIndex];
-            require(freezeBalance.amount != freezeBalance.released);
+            if (freezeBalance.amount != freezeBalance.released) {
             
-            if (freezeBalance.startTime + frozenTime <= currentTime()) {
-                
-                uint activeTime = currentTime() - (freezeBalance.startTime + frozenTime);
-                uint activeIters = activeTime / nextIterTime + 1;
-                uint unfrozenBalance = freezeBalance.amount * activeIters * releasePercent / 100 - freezeBalance.released;
-                
-                if (unfrozenBalance > freezeBalance.amount - freezeBalance.released) {
-
-                    unfrozenBalance = freezeBalance.amount - freezeBalance.released;
-
-                } else {
+                if (freezeBalance.startTime + frozenTime <= currentTime()) {
                     
-                    require(freezeBalance.amount * activeIters * releasePercent / 100 == freezeBalance.released + unfrozenBalance);
-                }
-                
-                freezeBalance.released += unfrozenBalance;
-                addBalance(msg.sender, unfrozenBalance);
-                UnfreezeTokenToBalace(unfrozenBalance, msg.sender);
-            }       
+                    uint activeTime = currentTime() - (freezeBalance.startTime + frozenTime);
+                    uint activeIters = activeTime / nextIterTime + 1;
+                    uint unfrozenBalance = freezeBalance.amount * activeIters * releasePercent / 100 - freezeBalance.released;
+                    
+                    if (unfrozenBalance > freezeBalance.amount - freezeBalance.released) {
+
+                        unfrozenBalance = freezeBalance.amount - freezeBalance.released;
+
+                    } else {
+                        
+                        require(freezeBalance.amount * activeIters * releasePercent / 100 == freezeBalance.released + unfrozenBalance);
+                    }
+                    
+                    freezeBalance.released += unfrozenBalance;
+                    addBalance(msg.sender, unfrozenBalance);
+                    UnfreezeTokenToBalace(unfrozenBalance, msg.sender);
+                }       
+            }
         }
     }
 
